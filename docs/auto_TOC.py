@@ -1,4 +1,16 @@
 #!/usr/bin/env python
+#auto_TOC.py 
+#
+#Automatically move the png files generated from the examples and generate the table of content for 
+#Read the docs and sphinx.
+#------------------------------------------------------------------------------------------------
+#Dependency: embed_html.py
+#------------------------------------------------------------------------------------------------
+#Condition:
+#The batch examples must be name with the convention used (exact same name as the model)
+#------------------------------------------------------------------------------------------------
+#Written by: Gabriel Berestovoy
+#------------------------------------------------------------------------------------------------
 
 import os
 import sys

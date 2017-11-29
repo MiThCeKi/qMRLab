@@ -1,6 +1,20 @@
 %MATLAB header parser function
-%ToDo: index management automatic and not hard coded / continue management
-%for index instartindex and endindex
+%----------------------------------------------------------------
+%Written by: Gabriel BErestovoy
+%----------------------------------------------------------------
+% classdef Header_Parse
+%     properties
+%         assumption = '';
+%         input = '';
+%         output = '';
+%         protocol = '';
+%         option = '';
+%         usage = '';
+%         author = '';
+%         references = '';
+%         head = '';
+%     end
+% end
 
 function Header_Parse(file)
     cdmfile(file)
@@ -11,80 +25,41 @@ function Header_Parse(file)
     fID = fopen(filepath);
     line = fgets(fID);
 
-    assumption = '';
-    input = '';
-    output = '';
-    protocol = '';
-    option = '';
-    usage = '';
-    author = '';
-    references = '';
-    head = '';
+    assumption = strings;
+    input =strings;
+    output = strings;
+    protocol = strings;
+    option = strings;
+    usage = strings;
+    author = strings;
+    references = strings;
+    head = strings;
 
     k = 1;
     cat = 0;
     finished = 0;
-    while ~feof(fID) && ~finished
-        if strcmp(reading,fields(8)) && isempty(strfind(line,'%'))
+    while ~feof(fID) & ~finished
+        if strcmp(reading,fields(8)) & isempty(strfind(line,'%'))
             finished = 1;
         end
-        if strcmp(line(1), '%') && ~strcmp(strrep(strrep(line,char(10),''),char(13),''),'%')
+        if strcmp(line(1), '%') & ~strcmp(strrep(strrep(line,char(10),''),char(13),''),'%')
             line = strrep(line,'%','');
-            if strfind(line, fields(1)) && startsWith(strip(line,' '),fields(1)) 
-                %Working in the assu]mptions
-                reading = fields(1); 
-                
-                k = 1;
-                cat = 0;
-            elseif strfind(line, fields(2)) && startsWith(strip(line,' '),fields(2))
-                %Working in the Inputs
-                reading = fields(2); 
-
-                k = 1;
-                cat = 0;
-            elseif strfind(line, fields(3)) && startsWith(strip(line,' '),fields(3)) 
-                %Working in the Outputs
-                reading = fields(3); 
-
-                k = 1;
-                cat = 0;
-            elseif strfind(line, fields(4)) && startsWith(strip(line,' '),fields(4))
-                %Working in the Protocols
-                reading = fields(4); 
-
-                k = 1;
-                cat = 0;
-            elseif strfind(line, fields(5)) && startsWith(strip(line,' '),fields(5))
-                %Working in the Options
-                reading = fields(5); 
-
-                k = 1;
-                cat = 0;
-            elseif strfind(line, fields(6)) && startsWith(strip(line,' '),fields(6)) 
-                %Working in the Usage
-                reading = fields(6);
-
-                k = 1;
-                cat = 0;
-            elseif strfind(line, fields(7)) && startsWith(strip(line,' '),fields(7)) 
-                %Working in the Author
-                reading = fields(7);
-
-                k = 1;
-                cat = 0;
-            elseif strfind(line, fields(8)) && startsWith(strip(line,' '),fields(8)) 
-                %Working in the References
-                reading = fields(8);
-
-                k = 1;
-                cat = 0;
+            for i = 1:length(fields)
+                finds = strfind(line,fields(i))
+                if length(finds) ~= 0
+                    if finds(1)== 2
+                        reading = fields(i);
+                        k=1;
+                        cat=0;
+                    end
+                end
             end
             if strcmp(reading, '')
                 head(k,1) = strip(line);
                 k= k + 1
             elseif strcmp(reading,fields(1))
                 %Get the Assumptions
-                if strfind(line, fields(1)) && startsWith(strip(line,' '),fields(1))
+                if strfind(line, fields(1)) & startsWith(strip(line,' '),fields(1))
                       ;
                 elseif line(4) ~= ' '
                     assumption(k) = line;
@@ -94,7 +69,7 @@ function Header_Parse(file)
                 end    
             elseif strcmp(reading,fields(2))
                 %Get the inputs
-                if strfind(line, fields(2)) && startsWith(strip(line,' '),fields(2))
+                if strfind(line, fields(2)) & startsWith(strip(line,' '),fields(2))
                     ;
                 elseif line(4) ~= ' '
                     input(k,1) = strip(extractBetween(line,4,23),' ');
@@ -107,7 +82,7 @@ function Header_Parse(file)
                 end  
             elseif strcmp(reading, fields(3))
                 %Get the outputs 
-                if strfind(line, fields(3)) && startsWith(strip(line,' '),fields(3))
+                if strfind(line, fields(3)) & startsWith(strip(line,' '),fields(3))
                     ;
                 elseif line(4) ~= ' '
                     output(k,1) = strip(extractBetween(line,4,23),' ');
@@ -120,7 +95,7 @@ function Header_Parse(file)
                 end  
             elseif strcmp(reading,fields(4))
                 %Get the protocols
-                if strfind(line, fields(4)) && startsWith(strip(line,' '),fields(4))
+                if strfind(line, fields(4)) & startsWith(strip(line,' '),fields(4))
                     ;
                 elseif line(4) ~= ' '
                     protocol(k,1) = strip(extractBetween(line,4,23), ' ');
@@ -136,14 +111,14 @@ function Header_Parse(file)
                     end
                     k = k + 1;
                     cat = 0;
-                elseif line(26) ~= ' ' && cat == 1
+                elseif line(26) ~= ' ' & cat == 1
                     protocol(k-1,2) = protocol(k-1,2) + strip(line, ' ');
-                elseif line(26) ~= ' ' && cat == 0
+                elseif line(26) ~= ' ' & cat == 0
                     protocol(k-1,4) = protocol(k-1,4) + strip(line, ' ');
                 end
             elseif strcmp(reading,fields(5))
                 %Get the options
-                if strfind(line, fields(5)) && startsWith(strip(line,' '),fields(5))
+                if strfind(line, fields(5)) & startsWith(strip(line,' '),fields(5))
                     ;
                 elseif line(4) ~= ' '
                     len = length(line)
@@ -164,14 +139,14 @@ function Header_Parse(file)
                     end
                     k = k + 1;
                     cat = 0;
-                elseif (line(29) ~= ' ' || line(30))&& cat == 1
+                elseif (line(29) ~= ' ' || line(30))& cat == 1
                     option(k-1,2) = option(k-1,2) + strip(line, ' ');
-                elseif (line(29) ~= ' ' || line(30)) && cat == 0
+                elseif (line(29) ~= ' ' || line(30)) & cat == 0
                     option(k-1,4) = option(k-1,4) + strip(line, ' ');
                 end
             elseif strcmp(reading,fields(6))
                 %Get the usage
-                if strfind(line, fields(6)) && startsWith(strip(line,' '),fields(6))
+                if strfind(line, fields(6)) & startsWith(strip(line,' '),fields(6))
                 else
                     usage(k,1)=strip(line);
                     k = k + 1;
@@ -182,7 +157,7 @@ function Header_Parse(file)
                 k = k + 1;
             elseif strcmp(reading,fields(8))
                 %Get the references
-                if strfind(line, fields(8)) && startsWith(strip(line,' '),fields(6))
+                if strfind(line, fields(8)) & startsWith(strip(line,' '),fields(6))
                 else
                     references(k,1) = strip(line);
                     k = k + 1;
