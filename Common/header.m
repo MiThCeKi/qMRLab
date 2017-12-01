@@ -91,10 +91,10 @@ classdef header
                     elseif strcmpi(reading,fields(1))
                         %Get the Assumptions
                         if length(strfind(lower(line), lower(fields(1)))) ~= 0 && strncmpi(strtrim(line),fields(1),length(fields(1)));
-                        elseif line(4) ~= ' '
+                        elseif length(line) > 4 && line(4) ~= ' '
                             assumption(k,1) = line;
                             k = k + 1;
-                        elseif line(6) ~= ' '
+                        elseif length(line) > 6 && line(6) ~= ' '
                             assumption(k-1)= assumption(k-1)+line;
                         end    
                     elseif strcmpi(reading,fields(2))
