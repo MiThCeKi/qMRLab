@@ -49,7 +49,7 @@ classdef header
         end
         function h = header_parse(file)
             cdmfile(file)
-            fields = {'Assumptions','Inputs','Outputs','Protocol','Option','Command line usage','Author','Reference'};
+            fields = {'Assumptions:','Inputs:','Outputs:','Protocol:','Options:','Command line usage','Author','Reference'};
             reading = '';
 
             filepath = which(file);
@@ -98,37 +98,65 @@ classdef header
                             assumption(k-1)= assumption(k-1)+line;
                         end    
                     elseif strcmpi(reading,fields(2))
-                        %Get the inputs
-                        if length(strfind(line, fields(2))) ~= 0 && strncmpi(strtrim(line),fields(2),length(fields(2)));
-                        elseif line(4) ~= ' '
-                            input(k,1) = strtrim(extractBetween(line,4,23));
+                       %Get the inputs 
+                        [startindex endindex] = regexp(line, '\s+');
+                        index_first = 4;
+                        if length(startindex) ~= 0 && length(endindex) ~= 0
+                            index_first = endindex(1) - startindex(1) + 2;
+                        end
+                        if length(strfind(line, fields(2))) ~= 0 && strncmpi(strtrim(line),fields(2),length(fields(3)))
+                            index_descr = 10;
+                        elseif line(index_first) ~= ' ' && index_first < index_descr
+                            input(k,1) = strtrim(extractBetween(line,index_first,endindex(2)));
                             if length(line) > 23
-                                input(k,2) = strtrim(extractAfter(line,23));
+                                input(k,2) = strtrim(extractAfter(line,endindex(2)));
+                                index_descr = endindex(2);
                             end
                             k = k + 1;
-                        elseif line(24) ~= ' '
-                            input(k-1,2) = input(k-1,2) + strtrim(line);
-                        end  
+                        elseif line(endindex(1) + 1) ~= ' '
+                            input(k-1,2) = input(k-1,2) + char(13) + char(10)+ strtrim(line);
+                        end 
                     elseif strcmpi(reading, fields(3))
                         %Get the outputs 
-                        if length(strfind(line, fields(3))) ~= 0 && strncmpi(strtrim(line),fields(3),length(fields(3)));
-                        elseif line(4) ~= ' '
-                            output(k,1) = strtrim(extractBetween(line,4,23));
+                        [startindex endindex] = regexp(line, '\s+');
+                        index_first = 4;
+                        if length(startindex) ~= 0 && length(endindex) ~= 0
+                            index_first = endindex(1) - startindex(1) + 2;
+                        end
+                        if length(strfind(line, fields(3))) ~= 0 && strncmpi(strtrim(line),fields(3),length(fields(3)))
+                            index_descr = 10;
+                        elseif line(index_first) ~= ' ' && index_first < index_descr
+                            output(k,1) = strtrim(extractBetween(line,index_first,endindex(2)));
                             if length(line) > 23
-                                output(k,2) = strtrim(extractAfter(line,23));
+                                output(k,2) = strtrim(extractAfter(line,endindex(2)));
+                                index_descr = endindex(2);
                             end
                             k = k + 1;
-                        elseif line(26) ~= ' '
-                            output(k-1,2) = output(k-1,2) + strtrim(line);
+                        elseif line(endindex(1) + 1) ~= ' '
+                            output(k-1,2) = output(k-1,2) + char(13) + char(10)+ strtrim(line);
                         end  
                     elseif strcmpi(reading,fields(4))
                         %Get the protocols
-                        [startindex endindex] = regexp(line,' ');
+                        [startindex endindex] = regexp(line,'\s+');
                         index = 1;
                         i = 1;
+                        if exist('index_cat') == 0
+                            index_cat = -1;
+                            index_name = -1;
+                            index_first = 4;
+                        end
+                        if length(startindex) ~= 0 && length(endindex) ~= 0
+                            index_first = endindex(1) - startindex(1) + 2;
+                        end
+                        if index_cat == 0 
+                            index_cat = endindex(1) + 1;
+                        elseif endindex(1) + 1 > index_cat && index_name == 0
+                            index_name = endindex(1) + 1;
+                            index_descr = endindex(2) + 1;
+                        end
                         %Check the index at which the description starts
                         while i <= length(endindex) && index == 1
-                            if endindex(i) >= 20
+                            if endindex(i) >= 15 && endindex(i)- startindex(i) > 0
                                 index = endindex(i);
                             end
                             i = i + 1;
@@ -136,39 +164,56 @@ classdef header
                         if index == 1
                             index = 23;
                         end
-                        %
-                        if length(strfind(line, fields(4))) ~= 0 && strncmpi(strtrim(line),fields(4),length(fields(4)));
-                        elseif line(4) ~= ' '
-                            if length(line) >= 23
-                                protocol(k,1) = strtrim(extractBetween(line,4,index));
+                        if length(strfind(line, fields(4))) ~= 0 && strncmpi(strtrim(line),fields(4),length(fields(4)))
+                            index_cat = 0;
+                            index_name = 0;
+                            index_descr = 0;
+                        elseif line(index_cat) ~= ' '
+                            len = length(line);
+                            if len > 20
+                                protocol(k,1) = strtrim(extractBetween(line,index_cat,index));
                             else
                                 protocol(k,1) = strtrim(line);
                             end
-                            if length(line) > 23
+                            if length(line) > 21
                                 protocol(k,2) = strtrim(extractAfter(line,index));
                             end
                             k = k + 1;
                             cat = 1;
-                        elseif line(6) ~= ' '
-                            protocol(k,3) = strtrim(extractBetween(line,6,index));
+                        elseif line(index_name) ~= ' '
+                            protocol(k,3) = strtrim(extractBetween(line,index_name,index));
                             if length(line) > 23
                                 protocol(k,4) = strtrim(extractAfter(line,index));
                             end
                             k = k + 1;
                             cat = 0;
-                        elseif line(26) ~= ' ' && cat == 1
+                        elseif (line(29) ~= ' ' || line(30)) && cat == 1
                             protocol(k-1,2) = protocol(k-1,2) +char(10)+char(13)+ strtrim(line);
-                        elseif line(26) ~= ' ' && cat == 0
+                        elseif (line(29) ~= ' ' || line(30)) && cat == 0
                             protocol(k-1,4) = protocol(k-1,4) +char(10)+char(13)+ strtrim(line);
                         end
                     elseif strcmpi(reading,fields(5))
                         %Get the options
-                        [startindex endindex] = regexp(line,' ');
+                        [startindex endindex] = regexp(line,'\s+');
                         index = 1;
                         i = 1;
+                        if exist('index_cat') == 0
+                            index_cat = -1;
+                            index_name = -1;
+                            index_first = 4;
+                        end
+                        if length(startindex) ~= 0 && length(endindex) ~= 0
+                            index_first = endindex(1) - startindex(1) + 2;
+                        end
+                        if index_cat == 0 
+                            index_cat = endindex(1) + 1;
+                        elseif endindex(1) + 1 > index_cat && index_name == 0
+                            index_name = endindex(1) + 1;
+                            index_descr = endindex(2) + 1;
+                        end
                         %Check the index at which the description starts
                         while i <= length(endindex) && index == 1
-                            if endindex(i) >= 20
+                            if endindex(i) >= 15 && endindex(i)- startindex(i) > 0
                                 index = endindex(i);
                             end
                             i = i + 1;
@@ -176,12 +221,14 @@ classdef header
                         if index == 1
                             index = 23;
                         end
-                        %
-                        if length(strfind(line, fields(5))) ~= 0 && strncmpi(strtrim(line),fields(5),length(fields(5)));
-                        elseif line(4) ~= ' '
+                        if length(strfind(line, fields(5))) ~= 0 && strncmpi(strtrim(line),fields(5),length(fields(5)))
+                            index_cat = 0;
+                            index_name = 0;
+                            index_descr = 0;
+                        elseif line(index_cat) ~= ' '
                             len = length(line);
                             if len > 20
-                                option(k,1) = strtrim(extractBetween(line,4,index));
+                                option(k,1) = strtrim(extractBetween(line,index_cat,index));
                             else
                                 option(k,1) = strtrim(line);
                             end
@@ -190,8 +237,8 @@ classdef header
                             end
                             k = k + 1;
                             cat = 1;
-                        elseif line(6) ~= ' '
-                            option(k,3) = strtrim(extractBetween(line,6,index));
+                        elseif line(index_name) ~= ' '
+                            option(k,3) = strtrim(extractBetween(line,index_name,index));
                             if length(line) > 23
                                 option(k,4) = strtrim(extractAfter(line,index));
                             end
