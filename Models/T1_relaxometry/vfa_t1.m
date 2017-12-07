@@ -99,15 +99,16 @@ end
             % T1 and M0
             flipAngles = (obj.Prot.VFAData.Mat(:,1))';
             TR = obj.Prot.VFAData.Mat(:,2);
-            if ~isfield(data,'B1map'), data.B1map=1; end
+            if (~isfield(data,'B1map') || isempty(data.B1map)), data.B1map=1; end
             
-            if obj.options.FittingType == 'linear'
+            if (strcmp(obj.options.FittingType, 'Linear'))
                 [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
             else
                 % Non linear fitting
                 fixedparam = obj.fx;
                 optoptim.MaxIter = 20; optoptim.Display = 'off';
-                [xopt, residue] = lsqcurvefit(@(x) equation(obj, addfixparameters(obj.st,x,fixedparam)),obj.st(~fixedparam),[],double(data.VFAData),double(obj.lb(~fixedparam)),double(obj.ub(~fixedparam)),optoptim);
+                [xopt, residue] = lsqcurvefit(@(x,prot) equation(obj, addfixparameters(obj.st,x,fixedparam)),obj.st(~fixedparam),obj.Prot.VFAData.Mat,double(data.VFAData)',double(obj.lb(~fixedparam)),double(obj.ub(~fixedparam)),optoptim);
+          
                 
                 FitResult.M0 = xopt(1);
                 FitResult.T1 = xopt(2);
@@ -132,21 +133,25 @@ end
                 plot(flipAngles,data.VFAData,'.','MarkerSize',16)
             else
                 B1map=1;
-            end
-            E = exp(-TR/x.T1);
-            Smodel = x.M0*sin(flipAngles/180*pi*B1map)*(1-E)./(1-E*cos(flipAngles/180*pi*B1map));
-            hold on
-            plot(flipAngles,Smodel,'x','MarkerSize',16)
-            hold off
-            title('Data points','FontSize',14);
-            xlabel('Flip Angle [deg]','FontSize',12);
-            ylabel('Signal','FontSize',12);
-            legend('data', 'fitted','Location','best')
-            set(gca,'FontSize',12)
-
-            
+           end
+           fas=min(flipAngles):(max(flipAngles)-min(flipAngles))/100:max(flipAngles);
+           E = exp(-TR/x.T1);
+           Smodel = x.M0*sin(fas/180*pi*B1map)*(1-E)./(1-E*cos(fas/180*pi*B1map));
+           hold on
+           plot(fas,Smodel)
+           hold off
+           title('Data points','FontSize',14);
+           xlabel('Flip Angle [deg]','FontSize',12);
+           ylabel('Signal','FontSize',12);
+           legend('data', 'fitted','Location','best')
+           set(gca,'FontSize',12)
+           
+           
             % Plot linear fit
             subplot(2,1,2)
+            %Smodel = x.M0*sin(flipAngles/180*pi*B1map)*(1-E)./(1-E*cos(flipAngles/180*pi*B1map));
+            obj.Prot.VFAData.Mat(:,1) = flipAngles.*B1map';
+            Smodel = equation(obj,x);
             if exist('data','var')
                 ydata = data.VFAData./sin(flipAngles/180*pi*B1map)';
                 xdata = data.VFAData./tan(flipAngles/180*pi*B1map)';
