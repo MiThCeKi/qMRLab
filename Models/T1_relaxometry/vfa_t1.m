@@ -65,7 +65,7 @@ end
         fx           = [0     0]; % fix parameters
                                      
         % Model options
-        buttons = {};
+        buttons = {'Fitting Type',{'Linear', 'Non-linear'}};
         options= struct(); % structure filled by the buttons. Leave empty in the code
         
         % Simulation Options
@@ -100,8 +100,18 @@ end
             flipAngles = (obj.Prot.VFAData.Mat(:,1))';
             TR = obj.Prot.VFAData.Mat(:,2);
             if ~isfield(data,'B1map'), data.B1map=1; end
-            [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
-
+            
+            if obj.options.FittingType == 'linear'
+                [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
+            else
+                % Non linear fitting
+                fixedparam = obj.fx;
+                optoptim.MaxIter = 20; optoptim.Display = 'off';
+                [xopt, residue] = lsqcurvefit(@(x) equation(obj, addfixparameters(obj.st,x,fixedparam)),obj.st(~fixedparam),[],double(data.VFAData),double(obj.lb(~fixedparam)),double(obj.ub(~fixedparam)),optoptim);
+                
+                FitResult.M0 = xopt(1);
+                FitResult.T1 = xopt(2);
+            end
        
        end
        
