@@ -1,9 +1,11 @@
 Simple GUI example
 =========================================
-This will guide you step by step in processing a sample quantitative MRI dataset with the graphical user interface. For this example, a Variable Flip Angle (VFA) T\ :sub:`1`\  mapping brain dataset will be used.
+This will guide you step by step in processing a sample quantitative MRI dataset with the graphical user interface. For this example, a variable flip angle (VFA) T\ :sub:`1`\  mapping brain dataset will be used.
 
 1. Open MATLAB
 ----------------------------------
+Open the directory where qMRLab was installed.
+
 2. Run startup
 ----------------------------------
 This will setup your path ::
@@ -12,25 +14,25 @@ This will setup your path ::
 
 3. Download example data
 ------------------------------
-Variable Flip Angle (VFA) data is used to compute a T\ :sub:`1`\  map. The main input data is stored as a 4D volume, where the 4th dimension is different flip angles. 
-For example, in this test dataset, 1 slice at 2 different flip angles were acquired: volume 1 was FA=3degrees and volumes 2 was FA=20degrees, such that *VFAData.nii.gz* is 128x128x1x2. The other optional inputs are a *Mask.nii.gz* and a *B1Map.nii.gz*.
+Variable flip angle (VFA) data is used to compute a T\ :sub:`1`\  map. The main input data is stored as a 4D volume, where the 4th dimension are acquisitions are different flip angles. 
+For example, in this test dataset, 1 slice at 2 different flip angles were acquired: volume 1 was FA = 3 deg and volume 2 was FA = 20deg, such that *VFAData.nii.gz* is 128x128x1x2. The other optional inputs are a *Mask.nii.gz* and a *B1Map.nii.gz*, and are included in this example.
 
-Run this in matlab to get the data::
+To download the demo data, run the following commands in the MATLAB terminal::
 
 	Model=vfa_t1;
 	downloadData(Model)
 
-When prompted, select a folder where you would like to put the sample data 
+When prompted, select a folder where you would like to put the sample data .
 
 4. Launch the GUI
 -----------------------------
-Type this is matlab to launch the main GUI::
+Type this is MATLAB to launch the main GUI (graphical user interface)::
 
 	qMRLab
 
 5. Model Selection
 -------------------------
-On the top left-hand side pull-down menu, select the method we are going to use, in this case, *vfa_t1        (T1_relaxometry/)* :
+On the top left-hand side pull-down menu, select the quantitative MRI method you wish to use, which in this in this is case is *vfa_t1        (T1_relaxometry/)* :
 
 .. figure:: _static/method-select.png
    :scale: 45 %
@@ -40,7 +42,7 @@ At any time, you may use the *Help* button in the *Options* panel to get a descr
 .. figure:: _static/help.png
    :scale: 45 %
 
-For the list of available models, please check :ref:`Methods available`
+For the list of available models, please check :ref:`Methods available`.
 
 6. Load the data
 --------------------------
@@ -48,6 +50,8 @@ Load the raw data in qMRLab by selecting *Browse* next to *Work Dir*. Select the
 
 .. figure:: _static/load-data.png
    :scale: 45 %
+
+Please note that the data were loaded automatically because they were named following the naming convention for that model and were contained within the working directory. In the future, if your data follows a different naming convention, you may simply load the data volumes one by one after selecting your working directory. In both these cases, your working directory is also the directory were all processed files (e.g.) will be placed.
 
 For a more detailed description of what the input data should look like, please refer to :ref:`3.1	Data format`
 
@@ -96,5 +100,6 @@ A wait bar will appear while the data is being processed and will automatically 
 .. figure:: _static/view-fit.png
    :scale: 55 %
 
+The fitted T\ :sub:`1`\  and M\ :sub:`0`\  maps are saved locally in the FitResults/ folder within your working directory (as both a single *.mat MATLAB filetype and separate *.nii.gz (compressed NIfTI files) filetypes).
 
 For more information and to explore other functionality such as the simulations, please visit :ref:`Graphical User Interface Usage`.
