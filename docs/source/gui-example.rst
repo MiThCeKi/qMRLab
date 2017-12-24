@@ -1,8 +1,8 @@
-Beginners example with GUI
+Simple GUI example
 =========================================
-This will guide you step by step in processing a sample dataset with the user interface. 
+This will guide you step by step in processing a sample quantitative MRI dataset with the graphical user interface. For this example, a Variable Flip Angle (VFA) T\ :sub:`1`\  mapping brain dataset will be used.
 
-1. Open matlab
+1. Open MATLAB
 ----------------------------------
 2. Run startup
 ----------------------------------
@@ -12,13 +12,13 @@ This will setup your path ::
 
 3. Download example data
 ------------------------------
-In this case we will be working with Variable Flip Angle Data to compute a T1map. The main input data is stored as a 4D volume, where the 4th dimension is different flip angles. 
+Variable Flip Angle (VFA) data is used to compute a T\ :sub:`1`\  map. The main input data is stored as a 4D volume, where the 4th dimension is different flip angles. 
 For example, in this test dataset, 1 slice at 2 different flip angles were acquired: volume 1 was FA=3degrees and volumes 2 was FA=20degrees, such that *VFAData.nii.gz* is 128x128x1x2. The other optional inputs are a *Mask.nii.gz* and a *B1Map.nii.gz*.
 
 Run this in matlab to get the data::
 
 	Model=vfa_t1;
-	downloadData(Model,[])
+	downloadData(Model)
 
 When prompted, select a folder where you would like to put the sample data 
 
