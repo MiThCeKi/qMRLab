@@ -20,10 +20,29 @@
 %                         argument and separates every secton of the file 
 %                         and saves the different informations 
 %
+% Organization of the class
+%   first column: title of the varaible, input, output, option, etc.
+%   second column: second title for the option, protocol, etc. if there is
+%       one or description
+%   third colum: third title for the option, protocol, etc. if there is one
+%       or description
+%   ...
+%
 % Author: Gabriel Berestovoy
 % References: see other
 
 classdef header
+    % Description : Properties of the header class.
+    % Attributs:    assumption  (cells)
+    %               input       (cells)
+    %               output      (cells)
+    %               protocol    (cells)
+    %               option      (cells)
+    %               usage       (cells)
+    %               author      (cells)
+    %               references  (cells)
+    %               head        (cells)
+    
     properties
         assumption = {};
         input = {};
@@ -36,6 +55,18 @@ classdef header
         head = {};
     end
     methods (Static)
+        
+        % Description:  header class constructor with input arguments
+        % Inputs:       head    (cells)
+        %               ass     (cells)
+        %               in      (cells)
+        %               out     (cells)
+        %               prot    (cells)
+        %               opt     (cells)
+        %               us      (cells)
+        %               aut     (cells)
+        %               ref     (cells)
+        
         function obj = header(head,ass,in,out,prot,opt,us,aut,ref)
             obj.head = head;
             obj.assumption = ass;
@@ -47,7 +78,12 @@ classdef header
             obj.author = aut;
             obj.references = ref;
         end
+        
+        % Description:  Header parser for other files
+        % Input:        file    (fID)
+        % Output:       h       (typename<header>)
         function h = header_parse(file)
+            %Set global variables for other functions
             global fields;
             global k;
             global cat;
@@ -57,6 +93,7 @@ classdef header
             global index_first;
             global index_name;
             
+            %Set the initial values of these global variables
             fields = {'Assumptions:','Inputs:','Outputs:','Protocol:','Options:','Command line usage','Author','Reference'};
             k = 1;
             cat = 0;
@@ -66,11 +103,13 @@ classdef header
             index_first = -1;
             index_name = -1;
             reading = '';
-
+            
+            %Opne the file
             filepath = which(file);
             fID = fopen(filepath);
             line = fgets(fID);
-
+            
+            %Initialize the temporary cell variables to temporary values
             assumption = {};
             input ={};
             output = {};
@@ -80,11 +119,14 @@ classdef header
             author = {};
             references = {};
             head = {};
-
+            
+            %Loop across the file
             while ~feof(fID) && ~finished
+                %Check if the header is finished
                 if strcmpi(reading,fields(8)) && length(strfind(line,'%')) == 0
                     finished = 1;
                 end
+                %Check for the section that is read in the file
                 if strcmpi(line(1), '%') && ~strcmpi(strrep(strrep(line,char(10),''),char(13),''),'%')
                     line = strrep(line,'%','');
                     for i = 1:length(fields)
@@ -97,6 +139,7 @@ classdef header
                             end
                         end
                     end
+                    %Go get the informations
                     if strcmpi(reading, '')
                         %Get the first part
                         head = header.get_head(head, line);
@@ -140,6 +183,7 @@ classdef header
             h = header(head,assumption,input,output,protocol,option,usage,author,references);
         end
         
+        % Description: Get the assumptions from the file
         function a = get_assumption(assumption, line)
             global fields;
             global k;
@@ -160,6 +204,7 @@ classdef header
             end
         end
         
+        % Description: Get the inputs from the file
         function input = get_input(i, line)
             global fields;
             global k;
@@ -180,7 +225,7 @@ classdef header
             if length(strfind(line, fields(2))) ~= 0 && strncmpi(strtrim(line),fields(2),length(fields(3)))
                 index_descr = 10;
             elseif line(index_first) ~= ' ' && index_first < index_descr
-%                             input{k,1} = strtrim(extractBetween(line,index_first,endindex(2)));
+                %input{k,1} = strtrim(extractBetween(line,index_first,endindex(2)));
                 input{k,1} = strtrim(line(index_first:endindex(2)));
                 if length(line) > 23
                     input{k,2} = strtrim(line(endindex(2):length(line)));
@@ -192,6 +237,7 @@ classdef header
             end
         end
         
+        % Description: Get the outputs from the file
         function output = get_output(ou, line)
             global fields;
             global k;
@@ -224,6 +270,7 @@ classdef header
             end  
         end
         
+        % Description: Get the protocols from the file
         function protocol = get_protocol(p, line)
             global fields;
             global k;
@@ -297,6 +344,7 @@ classdef header
             end
         end
         
+        % Description: Get the options from the file
         function option = get_option(op, line)
             global fields;
             global k;
@@ -370,6 +418,7 @@ classdef header
             end
         end
         
+        % Description: Get the usage from the file
         function usage = get_usage(u, line)
             global fields;
             global k;
@@ -387,6 +436,8 @@ classdef header
                 k = k + 1;
             end
         end
+        
+        % Description: Get the author from the file
         function author = get_author(au, line)
             global fields;
             global k;
@@ -402,6 +453,7 @@ classdef header
             k = k + 1;
         end
         
+        % Description: Get the references from the file
         function references = get_references(r, line)
             global fields;
             global k;
@@ -420,6 +472,7 @@ classdef header
             end
         end
         
+        % Description: Get the header's first part from the file
         function head = get_head(he, line)
             global fields;
             global k;
